@@ -26,7 +26,7 @@ async def delete_movein(movein_id: int):
     )
 
 @moveininfo_router.put("/{event_id}", response_model=MoveInInfo)
-async def update_event(data: MoveInInfoUpdate, event_id: int = Path(...), session = Depends(get_session)) -> MoveInInfo:
+async def update_event(data: MoveInInfoUpdate, event_id: int = Path(...)) -> MoveInInfo:
     
     
     raise HTTPException(
