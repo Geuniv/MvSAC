@@ -1,7 +1,10 @@
 from fastapi import FastAPI
+from routes.MoveInInfo import moveininfo_router
 
 app = FastAPI()
 
+
+app.include_router(moveininfo_router, prefix="/movein")
 
 @app.get("/")
 async def root():
