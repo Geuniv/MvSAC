@@ -8,11 +8,11 @@ class MoveInInfo(SQLModel, table = True):
     name: str
     rrn: str
     email: EmailStr
-    beforeMoveInAdd: str
-    afterMoveInAdd: str
-    regDate: datetime.datetime
-    approvalDate: Optional[datetime.datetime]
-    moveInDate: datetime.date
+    beforeAddr: str
+    afterAddr: str
+    regDt: datetime.datetime
+    approvalDt: Optional[datetime.datetime]
+    moveInDt: datetime.date
     isApproval: bool = Field(default= None)
     userId: int = Field(foreign_key="user.id")
 
@@ -21,9 +21,9 @@ class MoveInInfoUpdate(SQLModel):
     name: Optional[str]
     rrn: Optional[str]
     email: Optional[EmailStr]
-    beforeMoveInAdd: Optional[str]
-    afterMoveInAdd: Optional[str]
-    regDate: Optional[datetime.datetime]
-    approvalDate: Optional[datetime.datetime]
-    moveInDate: Optional[datetime.date]
+    beforeAddr: Optional[str]
+    afterAddr: Optional[str]
+    regDt: Optional[datetime.datetime]
+    approvalDt: Optional[datetime.datetime]
+    moveInDt: Optional[datetime.date]
     isApproval: Optional[bool]   
