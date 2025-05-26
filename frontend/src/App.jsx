@@ -55,6 +55,7 @@ import Signup from './user/signup';
 //         </>
 //     );
 // }
+import MoveInReg from './MoveIn/MoveInReg'
 
 function App() {
   // const [count, setCount] = useState(0)
@@ -89,6 +90,7 @@ function App() {
           {/* </Route> */}
         </Routes>
       </BrowserRouter>
+      <MoveInReg />
     </>
   )
 }

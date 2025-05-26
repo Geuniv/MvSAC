@@ -4,6 +4,7 @@ import uvicorn
 from contextlib import asynccontextmanager
 from routes.users import user_router
 from database.connection import conn
+from routes.MoveInInfo import moveininfo_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -17,6 +18,11 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+app.include_router(moveininfo_router, prefix="/movein")
+
+@app.get("/")
+async def root():
+    return {"message": "Hello World"}
 
 app.add_middleware(
     # CORS 설정
