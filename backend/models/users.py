@@ -11,7 +11,7 @@ from datetime import datetime
 
 # 실제 DB의 User 테이블을 정의하는 모델
 class User(SQLModel, table=True):
-    __tablename__ = "User"  # ✅ 대문자 그대로 사용되도록 명시
+    __tablename__ = "User"  # 대문자 그대로 사용되도록 명시
 
     # 사용자 고유 ID (자동 증가, 기본키)
     id: Optional[int] = Field(default=None, primary_key=True)

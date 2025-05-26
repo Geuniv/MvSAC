@@ -5,8 +5,7 @@ from contextlib import asynccontextmanager
 from routes.users import user_router
 from database.connection import conn
 from routes.MoveInInfo import moveininfo_router
-from routes.move_in import router as movein_router
-from routes.users import router as user_router 
+from routes.users import user_router
 from database.connection import conn
 
 @asynccontextmanager

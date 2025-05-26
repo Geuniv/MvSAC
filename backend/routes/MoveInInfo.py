@@ -2,12 +2,15 @@ import datetime
 import json
 from fastapi import APIRouter, Body, Depends, Form, Path, HTTPException, status
 from sqlmodel import select
+from sqlmodel import Session
+from typing import List, Optional
+from fastapi import Query
 from auth.authenticate import authenticate
 from database.connection import get_session
-from models.MoveInInfo import MoveInInfo, MoveInInfoUpdate
+from models.MoveInInfo import MoveInInfo, MoveInInfoUpdate, MoveInCreate
+from models.users import User
 
 moveininfo_router = APIRouter(tags=["MoveIn"])
-
 
 # 전입 신고 등록
 @moveininfo_router.post("/", status_code=status.HTTP_201_CREATED)
@@ -18,7 +21,7 @@ async def create_movein(
 ) -> dict:
     
     data = json.loads(data)
-    data = MoveInInfo(**data)
+    data = MoveInInfoCreate(**data)
 
     data.regDt = datetime.now()
     data.userId = user_id
@@ -62,3 +65,20 @@ async def update_event(data: MoveInInfoUpdate, moveIn_id: int = Path(...), sessi
         status_code=status.HTTP_404_NOT_FOUND,
         detail="일치하는 전입 신고 내역을 찾을 수 없습니다."
     )
+
+# 전입신청 목록 (검색 포함)
+@moveininfo_router.get("/", response_model=List[MoveInInfo])
+def list_moveins(name: Optional[str] = Query(None), session: Session = Depends(get_session)):
+    query = select(MoveInInfo)
+    if name:
+        query = query.where(MoveInInfo.username.contains(name))
+        # query = query.where(MoveInInfo.name.contains(name))
+    return session.exec(query).all()
+
+# 전입신청 상세조회
+@moveininfo_router.get("/{movein_id}", response_model=MoveInInfo)
+def detail_movein(movein_id: int, session: Session = Depends(get_session)):
+    movein = session.get(MoveInInfo, movein_id)
+    if not movein:
+        raise HTTPException(status_code=404, detail="해당 신청 정보를 찾을 수 없습니다.")
+    return movein

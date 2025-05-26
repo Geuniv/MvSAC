@@ -1,14 +1,17 @@
 import json
 from models.users import User
-from models.move_in_info import User  # 모델 경로는 move_in_info에 정의된 User 사용
+# from models.move_in_info import User  # 모델 경로는 move_in_info에 정의된 User 사용
 from fastapi import APIRouter, Depends, HTTPException, status, Form, UploadFile, File
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import select
+from sqlmodel import Session
+from typing import List
 from database.connection import get_session
 from auth.hash_password import HashPassword
 from auth.jwt_handler import create_jwt_token
 # pathlib 모듈의 Path 클래스를 FilePath 이름으로 사용
 from pathlib import Path as FilePath
+from pathlib import Path
 from datetime import datetime
 import shutil
 
@@ -100,16 +103,16 @@ async def sign_in(data: OAuth2PasswordRequestForm = Depends(), session = Depends
         "access_token": create_jwt_token(user.email, user.id)
     }
 
-# 사용자 목록 조회
-@router.get("/", response_model=List[User])
-def list_users(session: Session = Depends(get_session)):
-    query = select(User)
-    return session.exec(query).all()
+# # 사용자 목록 조회
+# @user_router.get("/", response_model=List[User])
+# def list_users(session: Session = Depends(get_session)):
+#     query = select(User)
+#     return session.exec(query).all()
 
-# 사용자 상세 조회
-@router.get("/{user_id}", response_model=User)
-def detail_user(user_id: str, session: Session = Depends(get_session)):
-    user = session.get(User, user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="해당 사용자를 찾을 수 없습니다.")
-    return user
+# # 사용자 상세 조회
+# @user_router.get("/{user_id}", response_model=User)
+# def detail_user(user_id: str, session: Session = Depends(get_session)):
+#     user = session.get(User, user_id)
+#     if not user:
+#         raise HTTPException(status_code=404, detail="해당 사용자를 찾을 수 없습니다.")
+#     return user

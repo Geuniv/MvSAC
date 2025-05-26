@@ -2,7 +2,7 @@
 from typing import Optional
 from pydantic_settings import BaseSettings
 from sqlmodel import SQLModel, create_engine, Session
-from models.move_in_info import MoveInInfo, User  # 모델 import
+# from models.move_in_info import MoveInInfo, User  # 모델 import
 
 class Settings(BaseSettings):
     DATABASE_URL: Optional[str] =  None
