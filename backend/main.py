@@ -5,6 +5,9 @@ from contextlib import asynccontextmanager
 from routes.users import user_router
 from database.connection import conn
 from routes.MoveInInfo import moveininfo_router
+from routes.move_in import router as movein_router
+from routes.users import router as user_router 
+from database.connection import conn
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -22,7 +25,7 @@ app = FastAPI(lifespan=lifespan)
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
-
+from fastapi.middleware.cors import CORSMiddleware
 app.add_middleware(
     # CORS 설정
     CORSMiddleware,

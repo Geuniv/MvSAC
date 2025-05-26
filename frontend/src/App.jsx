@@ -93,6 +93,4 @@ function App() {
       <MoveInReg />
     </>
   )
-}
-
-export default App
+};
