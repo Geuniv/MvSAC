@@ -100,19 +100,7 @@ async def sign_in(data: OAuth2PasswordRequestForm = Depends(), session = Depends
     return {
         "message": "로그인에 성공했습니다.",
         "username": user.username,
+        "user_id": user.id, #추가
+        "email": user.email, #추가
         "access_token": create_jwt_token(user.email, user.id)
     }
-
-# # 사용자 목록 조회
-# @user_router.get("/", response_model=List[User])
-# def list_users(session: Session = Depends(get_session)):
-#     query = select(User)
-#     return session.exec(query).all()
-
-# # 사용자 상세 조회
-# @user_router.get("/{user_id}", response_model=User)
-# def detail_user(user_id: str, session: Session = Depends(get_session)):
-#     user = session.get(User, user_id)
-#     if not user:
-#         raise HTTPException(status_code=404, detail="해당 사용자를 찾을 수 없습니다.")
-#     return user

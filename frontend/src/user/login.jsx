@@ -28,6 +28,9 @@ export default function Login() {
                     // 메시지를 출력 -> 토큰을 저장 -> 이벤트 목록으로 이동
                     alert(res.data.message);
                     window.sessionStorage.setItem("access_token", res.data.access_token);
+                    window.sessionStorage.setItem("user_email", res.data.email);  // 추가됨
+                    window.sessionStorage.setItem("user_id", res.data.user_id);   // 추가됨
+                    window.sessionStorage.setItem("user_name", res.data.username);  // 추가됨
                     // 이동할 컴포넌트의 path 정보를 전달
                     navigate("/list");	
                 }

@@ -21,7 +21,7 @@ async def create_movein(
 ) -> dict:
     
     data = json.loads(data)
-    data = MoveInInfoCreate(**data)
+    data = MoveInCreate(**data)
 
     data.regDt = datetime.now()
     data.userId = user_id
@@ -68,17 +68,26 @@ async def update_event(data: MoveInInfoUpdate, moveIn_id: int = Path(...), sessi
 
 # 전입신청 목록 (검색 포함)
 @moveininfo_router.get("/", response_model=List[MoveInInfo])
-def list_moveins(name: Optional[str] = Query(None), session: Session = Depends(get_session)):
+def list_moveins(name: Optional[str] = Query(None), session: Session = Depends(get_session),
+                 user_id: int = Depends(authenticate)):
     query = select(MoveInInfo)
     if name:
-        query = query.where(MoveInInfo.username.contains(name))
-        # query = query.where(MoveInInfo.name.contains(name))
+        # query = query.where(MoveInInfo.username.contains(name))
+        query = query.where(MoveInInfo.name.contains(name))
+        # query = select(MoveInInfo).where(MoveInInfo.userId == user_id)
+
+    print(query)        
     return session.exec(query).all()
 
 # 전입신청 상세조회
 @moveininfo_router.get("/{movein_id}", response_model=MoveInInfo)
-def detail_movein(movein_id: int, session: Session = Depends(get_session)):
+def detail_movein(movein_id: int, session: Session = Depends(get_session),
+                  user_id: int = Depends(authenticate)):
     movein = session.get(MoveInInfo, movein_id)
     if not movein:
         raise HTTPException(status_code=404, detail="해당 신청 정보를 찾을 수 없습니다.")
+    
+    # if movein.userId != user_id:
+    #     raise HTTPException(status_code=403, detail="해당 데이터에 접근할 권한이 없습니다.")
+    
     return movein
