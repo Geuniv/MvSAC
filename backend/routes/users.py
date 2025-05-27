@@ -158,11 +158,25 @@ def get_profile(Authorization: str = Header(...), session: Session = Depends(get
     except Exception as e:
         raise HTTPException(status_code=401, detail=str(e))
 
-# # 사용자 목록 조회
-# @user_router.get("/", response_model=List[User])
-# def list_users(session: Session = Depends(get_session)):
-#     query = select(User)
-#     return session.exec(query).all()
+# 사용자 목록 조회
+@user_router.get("/", response_model=List[User])
+async def list_users(session: Session = Depends(get_session)):
+    users = session.exec(select(User)).all()
+    return users
+
+# 사용자 삭제
+@user_router.delete("/{user_id}", status_code=status.HTTP_200_OK)
+async def delete_user(user_id: int, session: Session = Depends(get_session)):
+    user = session.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="해당 사용자를 찾을 수 없습니다.")
+
+    imagePath = Path(user.file)
+    os.remove(imagePath)
+    
+    session.delete(user)
+    session.commit()
+    return {"message": "사용자가 삭제되었습니다."}
 
 # # 사용자 상세 조회
 # @user_router.get("/{user_id}", response_model=User)
