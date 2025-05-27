@@ -11,13 +11,20 @@ const List = () => {
   const navigate = useNavigate();
 
   // 의존배열을 주지 않아서 처음에 마운트 할 때 한 번 실행되고 위에 선언한 useState배열이 초기화 될 때마다 떠서 현재 4번 실행됨
+  // useEffect(() => {
+  //   const token = window.sessionStorage.getItem("access_token");
+  //   if (!token) {
+  //     alert("로그인 후 사용하세요.");
+  //     navigate("/login");
+  //   }
+  // });
   useEffect(() => {
-    const token = window.sessionStorage.getItem("access_token");
-    if (!token) {
-      alert("로그인 후 사용하세요.");
-      navigate("/login");
-    }
-  });
+  const token = window.sessionStorage.getItem("access_token");
+  if (!token) {
+    alert("로그인 후 사용하세요.");
+    navigate("/login");
+  }
+}, []);  // ✅ 마운트 시 1회만 실행
 
   useEffect(() => {
     axios.get('http://localhost:8000/events/')

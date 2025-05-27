@@ -10,6 +10,7 @@ settings = Settings()
 def create_jwt_token(email: str, user_id: int) -> str:
     # payload: 토큰 안에 담을 데이터 정의 (발급 시각 iat, 만료 시각 exp 포함)
     payload = {
+        "sub": str(user_id),  # 사용자 ID (subject)
         "user": email,             # 사용자 이메일
         "user_id": user_id,        # 사용자 ID
         "iat": time(),             # 발급 시각 (issued at)

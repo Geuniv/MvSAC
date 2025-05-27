@@ -5,7 +5,9 @@ export default function Profile() {
     const [profile, setProfile] = useState(null);
 
     useEffect(() => {
-        const token = localStorage.getItem("access_token");
+        // const token = localStorage.getItem("access_token");
+        const token = sessionStorage.getItem("access_token");
+        console.log("[DEBUG] access_token =", token); // ✅ 토큰 확인
 
         axios.get("http://localhost:8000/users/profile", {
             headers: {

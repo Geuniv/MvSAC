@@ -27,7 +27,8 @@ export default function Login() {
                 if (res.status === 200) {
                     // 메시지를 출력 -> 토큰을 저장 -> 이벤트 목록으로 이동
                     alert(res.data.message);
-                    window.sessionStorage.setItem("access_token", res.data.access_token);
+                    // localStorage.setItem("access_token", res.data.access_token); // localStorage ( 브라우저 전체/영구적 / 새로고침, 브라우저 재시작해도 로그인 유지 원할 때 ) 
+                    window.sessionStorage.setItem("access_token", res.data.access_token); // sessionStorage ( 브라우저 탭 단위 / 민감한 인증, 탭 닫으면 자동 로그아웃 원할 때 )
                     window.sessionStorage.setItem("user_email", res.data.email);  // 추가됨
                     window.sessionStorage.setItem("user_id", res.data.user_id);   // 추가됨
                     window.sessionStorage.setItem("user_name", res.data.username);  // 추가됨

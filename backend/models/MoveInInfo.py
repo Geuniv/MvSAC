@@ -18,8 +18,8 @@ class MoveInCreate(SQLModel, table = True):
     approvalDt: Optional[datetime.datetime]
     moveInDt: Optional[datetime.datetime]
     isApproval: bool = Field(default= None)
-    user_id: Optional[int] = Field(default=None, foreign_key="User.id")
-    # userId: Optional[int] = Field(default=None, foreign_key="user.id") #수정
+    # user_id: Optional[int] = Field(default=None, foreign_key="User.id")
+    userId: Optional[int] = Field(default=None, foreign_key="user.id") #수정
 
 # 전입 신고 수정 모델
 class MoveInInfoUpdate(SQLModel):
@@ -46,6 +46,6 @@ class MoveInInfo(SQLModel, table=True):
     approvalDt: Optional[datetime.datetime] = None
     moveInDt: Optional[datetime.datetime]
     isApproval: Optional[bool] = None
-    user_id: Optional[int] = Field(default=None, foreign_key="User.id")
-    # userId: int = Field(foreign_key="user.id", alias="userId")
+    # user_id: Optional[int] = Field(default=None, foreign_key="User.id")
+    userId: int = Field(foreign_key="user.id", alias="userId")
 

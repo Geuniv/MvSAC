@@ -17,7 +17,7 @@ from models.files import Files
 from database.connection import get_session
 from auth.hash_password import HashPassword
 from auth.jwt_handler import create_jwt_token, verify_jwt_token
-from service.s3_service import upload_file_to_ncp
+from service.s3_service import upload_file_to_s3
 
 # tag은 API 문서화에 사용되는 태그 ( docs 상에 같은 태그로 묶임 )
 user_router = APIRouter(tags=["User"])
@@ -68,32 +68,43 @@ async def sign_new_user(
     file_url = None
     if image:
         try:
-            file_url = upload_file_to_ncp(image.file, image.filename)
+            # S3 업로드 전에 파일 크기 먼저 확보
+            # image.file.seek(0, 2)  # 이 줄은 필요 없음
+            # size = image.file.tell() # 이 줄은 필요 없음
+            # image.file.seek(0) # 이 줄은 필요 없음
+            # UploadFile 객체는 'size' 속성을 가집니다.
+            file_size = str(image.size) # <<<<< 이 부분을 수정합니다.
+
+            file_url = upload_file_to_s3(image.file, image.filename) # S3 업로드
 
             file_name = os.path.basename(file_url)
             file_path = "/".join(file_url.split("/")[:-1])
             org_file_name = image.filename
 
-            image.file.seek(0, 2)
-            size = image.file.tell()
-            image.file.seek(0)
-            file_size = str(size)
-
-            print(file_url, "\n", file_name, "\n", file_path, "\n", org_file_name, "\n", file_size)
+            # print(file_url, "\n", file_name, "\n", file_path, "\n", org_file_name, "\n", file_size)
 
             new_file = Files(
-                user_id=new_user.id,
-                file_name=file_name,
-                file_path=file_path,
-                org_file_name=org_file_name,
-                file_size=file_size,
-                file_url=file_url
+                userId=new_user.id,
+                fileName=file_name,
+                filePath=file_path,
+                orgFileName=org_file_name,
+                fileSize=file_size, # 이제 file_size는 S3 업로드 이전에 얻은 값
+                fileUrl=file_url
             )
             session.add(new_file)
         except Exception as e:
+            # 이 부분은 파일 업로드 실패 시 예외 처리 (S3 업로드 실패 또는 Files 객체 생성 실패)
+            session.rollback() # S3 업로드가 성공했더라도 DB 저장 실패하면 User 생성까지 롤백해야 함
+            print(f"S3 파일 업로드 또는 Files 객체 생성 중 오류: {e}")
             raise HTTPException(status_code=500, detail=f"파일 업로드 실패: {str(e)}")
 
-    session.commit()
+    try:
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        print(f"!!! 데이터베이스 커밋 실패 오류: {e}")
+        print(f"!!! 오류 타입: {type(e)}")
+        raise HTTPException(status_code=500, detail=f"사용자 등록 중 데이터베이스 오류: {str(e)}")
 
     return {
         "message": "사용자 등록이 완료되었습니다.",
@@ -102,7 +113,7 @@ async def sign_new_user(
             "username": new_user.username,
             "email": new_user.email,
             "role": new_user.role,
-            "profile_image_url": file_url  # None일 수도 있음
+            "profile_image_url": file_url
         }
     }
 
@@ -131,7 +142,7 @@ async def sign_in(data: OAuth2PasswordRequestForm = Depends(), session = Depends
     }
 
 @user_router.get("/profile")
-def get_profile(Authorization: str = Header(...), session: Session = Depends(get_session)):
+async def get_profile(Authorization: str = Header(...), session: Session = Depends(get_session)):
     try:
         # Bearer 토큰에서 토큰만 추출
         token = Authorization.replace("Bearer ", "")

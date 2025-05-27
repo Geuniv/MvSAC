@@ -1,21 +1,22 @@
-from config.settings import settings
 import boto3
 from uuid import uuid4
 from pathlib import Path
 import mimetypes
+from config.settings import settings
 from datetime import datetime
 from botocore.exceptions import NoCredentialsError, ClientError, BotoCoreError
 
 # S3 클라이언트 생성
 s3 = boto3.client(
     "s3",
-    aws_access_key_id=settings.ncp_access_key,
-    aws_secret_access_key=settings.ncp_secret_key,
+    aws_access_key_id=settings.aws_access_key,
+    aws_secret_access_key=settings.aws_secret_key,
+    region_name="ap-northeast-2",
     endpoint_url=settings.endpoint_url
 )
 
 # 업로드 함수
-def upload_file_to_ncp(file_obj, filename: str) -> str:
+def upload_file_to_s3(file_obj, filename: str) -> str:
     try:
         print("[📤 S3 업로드 시작]")
         ext = Path(filename).suffix
@@ -32,17 +33,14 @@ def upload_file_to_ncp(file_obj, filename: str) -> str:
             file_obj,
             settings.bucket_name,
             key,
-            ExtraArgs={"ACL": "public-read", "ContentType": content_type}
+            # ExtraArgs={"ContentType": content_type, "ACL": "public-read"}  # 공개 접근 허용
+            ExtraArgs={"ContentType": content_type}  # ✅ ACL 제거
         )
         print("[✅ 업로드 성공]")
 
-        # BEFORE (잘못된 방식) buecket_name이 두번 들어감 지금
-        # return f"{settings.endpoint_url}/{settings.bucket_name}/{key}"
-
-        # AFTER (올바른 방식)
-        return f"{settings.endpoint_url}/{key}"
+        return f"{settings.endpoint_url}/{settings.bucket_name}/{key}"
 
     except (NoCredentialsError, ClientError, BotoCoreError) as e:
-        print(f"{settings.endpoint_url}/{key}")
+        print(f"{settings.endpoint_url}/{settings.bucket_name}/{key}")
         print(f"[❌ 업로드 실패]: {str(e)}")
-        raise RuntimeError(f"NCP 파일 업로드 실패: {str(e)}")
+        raise RuntimeError(f"S3 파일 업로드 실패: {str(e)}")
