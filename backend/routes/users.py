@@ -125,6 +125,8 @@ async def sign_in(data: OAuth2PasswordRequestForm = Depends(), session = Depends
     return {
         "message": "로그인에 성공했습니다.",
         "username": user.username,
+        "user_id": user.id, #추가
+        "email": user.email, #추가
         "access_token": create_jwt_token(user.email, user.id)
     }
 

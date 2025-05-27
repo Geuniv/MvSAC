@@ -33,7 +33,6 @@ function SearchBar({ search, setSearch }) {
       >
         <option value="">승인여부 전체</option>
         <option value="승인">승인</option>
-        <option value="반려">반려</option>
         <option value="대기">대기</option>
       </select>
       <button onClick={reset}>초기화</button>
