@@ -1,19 +1,23 @@
+import os
 import json
-from models.users import User
-# from models.move_in_info import User  # 모델 경로는 move_in_info에 정의된 User 사용
-from fastapi import APIRouter, Depends, HTTPException, status, Form, UploadFile, File
-from fastapi.security import OAuth2PasswordRequestForm
-from sqlmodel import select
-from sqlmodel import Session
-from typing import List
-from database.connection import get_session
-from auth.hash_password import HashPassword
-from auth.jwt_handler import create_jwt_token
-# pathlib 모듈의 Path 클래스를 FilePath 이름으로 사용
-from pathlib import Path as FilePath
+import shutil
 from pathlib import Path
 from datetime import datetime
-import shutil
+
+import mimetypes
+from uuid import uuid4
+
+from fastapi import APIRouter, Depends, HTTPException, status, Form, UploadFile, File, Header
+from fastapi.security import OAuth2PasswordRequestForm
+from sqlmodel import select, Session
+from typing import List, Optional
+
+from models.users import User
+from models.files import Files
+from database.connection import get_session
+from auth.hash_password import HashPassword
+from auth.jwt_handler import create_jwt_token, verify_jwt_token
+from service.s3_service import upload_file_to_ncp
 
 # tag은 API 문서화에 사용되는 태그 ( docs 상에 같은 태그로 묶임 )
 user_router = APIRouter(tags=["User"])
@@ -25,50 +29,71 @@ hash_password = HashPassword()
 # 맥 기준 홈 디렉토리
 # FILE_DIR = FilePath.home() / "uploads"
 # 현재 프로젝트의 현재 경로 기준 상위 폴더에 uploads 폴더 생성
-FILE_DIR = FilePath(__file__).resolve().parent / "../uploads"
-FILE_DIR.mkdir(exist_ok=True)
+# FILE_DIR = FilePath(__file__).resolve().parent / "../uploads"
+# FILE_DIR.mkdir(exist_ok=True)
 
 # 회원가입 API
 @user_router.post("/signup", status_code=status.HTTP_201_CREATED)
 async def sign_new_user(
-    data: str = Form(...),                       # JSON 문자열
-    image: UploadFile = File(...),               # 파일 업로드 (사진)
-    session = Depends(get_session)               # DB 세션
+    data: str = Form(...),
+    image: Optional[UploadFile] = File(None),
+    session: Session = Depends(get_session)
 ) -> dict:
-    # 1. JSON 문자열을 파싱하여 Pydantic 모델로 변환
+    # JSON 파싱
     try:
         parsed = json.loads(data)
         email = parsed.get("email")
+        if not email:
+            raise ValueError("이메일이 누락되었습니다.")
     except Exception:
         raise HTTPException(status_code=400, detail="요청 데이터 형식이 잘못되었습니다.")
 
-    # 2. 이메일 중복 확인
+    # 이메일 중복 검사
     existing_user = session.exec(select(User).where(User.email == email)).first()
     if existing_user:
         raise HTTPException(status_code=409, detail="동일한 사용자가 존재합니다.")
 
-    # 3. 이미지 파일 저장
-    timestamp = datetime.utcnow().strftime("%Y%m%d%H%M%S")
-    ext = FilePath(image.filename).suffix
-    file_name = f"{email}_{timestamp}{ext}"
-    file_path = FILE_DIR / file_name
-
-    with file_path.open("wb") as f:
-        shutil.copyfileobj(image.file, f)
-
-    # 4. 사용자 생성 및 DB 저장
+    # 사용자 등록 (flush로 ID 확보)
     new_user = User(
         username=parsed.get("username"),
         email=email,
         password=hash_password.hash_password(parsed.get("password")),
         role=parsed.get("role", "N"),
-        file=str(file_path),
         created_at=datetime.utcnow()
     )
-
     session.add(new_user)
+    session.flush()  # ID 확보 (commit은 나중에 한 번만)
+
+    # 이미지 업로드 및 파일 테이블 저장
+    file_url = None
+    if image:
+        try:
+            file_url = upload_file_to_ncp(image.file, image.filename)
+
+            file_name = os.path.basename(file_url)
+            file_path = "/".join(file_url.split("/")[:-1])
+            org_file_name = image.filename
+
+            image.file.seek(0, 2)
+            size = image.file.tell()
+            image.file.seek(0)
+            file_size = str(size)
+
+            print(file_url, "\n", file_name, "\n", file_path, "\n", org_file_name, "\n", file_size)
+
+            new_file = Files(
+                user_id=new_user.id,
+                file_name=file_name,
+                file_path=file_path,
+                org_file_name=org_file_name,
+                file_size=file_size,
+                file_url=file_url
+            )
+            session.add(new_file)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"파일 업로드 실패: {str(e)}")
+
     session.commit()
-    session.refresh(new_user)
 
     return {
         "message": "사용자 등록이 완료되었습니다.",
@@ -76,8 +101,8 @@ async def sign_new_user(
             "id": new_user.id,
             "username": new_user.username,
             "email": new_user.email,
-            "file": new_user.file,
-            "role": new_user.role
+            "role": new_user.role,
+            "profile_image_url": file_url  # None일 수도 있음
         }
     }
 
@@ -102,6 +127,34 @@ async def sign_in(data: OAuth2PasswordRequestForm = Depends(), session = Depends
         "username": user.username,
         "access_token": create_jwt_token(user.email, user.id)
     }
+
+@user_router.get("/profile")
+def get_profile(Authorization: str = Header(...), session: Session = Depends(get_session)):
+    try:
+        # Bearer 토큰에서 토큰만 추출
+        token = Authorization.replace("Bearer ", "")
+        payload = verify_jwt_token(token)
+        user_id = payload.get("sub")
+
+        if not user_id:
+            raise HTTPException(status_code=401, detail="토큰이 유효하지 않습니다.")
+
+        # 사용자 조회
+        user = session.get(User, user_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
+
+        # 프로필 이미지 조회 (없을 수도 있음)
+        file = session.exec(select(Files).where(Files.user_id == user.id)).first()
+
+        return {
+            "email": user.email,
+            "username": user.username,
+            "profile_image_url": file.file_url if file else None
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=401, detail=str(e))
 
 # # 사용자 목록 조회
 # @user_router.get("/", response_model=List[User])

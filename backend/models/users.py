@@ -31,7 +31,7 @@ class User(SQLModel, table=True):
     )
 
     # 첨부 파일 경로 또는 파일명 (선택, 최대 255자)
-    file: Optional[str] = Field(default=None, max_length=255)
+    # file: Optional[str] = Field(default=None, max_length=255)
 
     # 생성일시 (기본값: 현재 시간)
     created_at: Optional[datetime] = Field(
@@ -44,16 +44,16 @@ class User(SQLModel, table=True):
         CheckConstraint("role IN ('Y', 'N')", name="ck_user_role_yn"),
     )
 
-# 📌 로그인 요청을 받을 때 사용하는 입력 모델
+# 로그인 요청을 받을 때 사용하는 입력 모델
 class UserSignIn(SQLModel):
     email: EmailStr     # 로그인 이메일
     password: str       # 로그인 비밀번호
 
-# 📌 회원가입 요청을 받을 때 사용하는 입력 모델
+# 회원가입 요청을 받을 때 사용하는 입력 모델
 class UserSignUp(SQLModel):
     email: EmailStr     # 회원가입 이메일
     password: str       # 회원가입 비밀번호
     username: str       # 회원 이름
     role: str = Field(default="user")  # 사용자 권한 (기본값: user)
-    file: Optional[str] = Field(default=None, alias="file")  # 첨부 파일 경로 또는 이름
+    # file: Optional[str] = Field(default=None, alias="file")  # 첨부 파일 경로 또는 이름
     regDt: Optional[str] = Field(default=None, alias="reg_dt")  # 등록일 (예: 회원가입 일시)
