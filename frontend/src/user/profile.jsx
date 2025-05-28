@@ -1,37 +1,83 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import "../css/Profile.css";
 
 export default function Profile() {
     const [profile, setProfile] = useState(null);
+    const [username, setUsername] = useState("");
+    const [image, setImage] = useState(null);
+    const [editing, setEditing] = useState(false);
+
+    const token = sessionStorage.getItem("access_token");
 
     useEffect(() => {
-        // const token = localStorage.getItem("access_token");
-        const token = sessionStorage.getItem("access_token");
-        console.log("[DEBUG] access_token =", token); // ✅ 토큰 확인
-
         axios.get("http://localhost:8000/users/profile", {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
+            headers: { Authorization: `Bearer ${token}` }
         })
-        .then(res => setProfile(res.data))
+        .then(res => {
+            setProfile(res.data);
+            setUsername(res.data.username);
+        })
         .catch(err => {
             console.error(err);
             alert("프로필 정보를 가져오지 못했습니다.");
         });
     }, []);
 
-    if (!profile) return <p>로딩 중...</p>;
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData();
+        formData.append("data", JSON.stringify({ username }));
+        if (image) formData.append("image", image);
+
+        try {
+            await axios.put("http://localhost:8000/users/profile", formData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "multipart/form-data"
+                }
+            });
+            alert("프로필 수정 완료");
+            setEditing(false);
+            window.location.reload();
+        } catch (err) {
+            console.error(err);
+            alert("프로필 수정 실패");
+        }
+    };
+
+    if (!profile) return <p className="loading">로딩 중...</p>;
 
     return (
-        <div>
-            <h2>내 프로필</h2>
-            <p><strong>이메일:</strong> {profile.email}</p>
-            <p><strong>이름:</strong> {profile.username}</p>
-            {profile.profile_image_url ? (
-                <img src={profile.profile_image_url} alt="프로필 이미지" style={{ width: "150px", borderRadius: "50%" }} />
+        <div className="profile-container">
+            <h2>사원 정보</h2>
+            {editing ? (
+                <form onSubmit={handleSubmit}>
+                    <input
+                        type="text"
+                        value={username}
+                        onChange={e => setUsername(e.target.value)}
+                        placeholder="이름 수정"
+                    />
+                    <input
+                        type="file"
+                        onChange={e => setImage(e.target.files[0])}
+                    />
+                    <button type="submit">저장</button>
+                    <button type="button" onClick={() => setEditing(false)}>취소</button>
+                </form>
             ) : (
-                <p>프로필 이미지 없음</p>
+                <>
+                    <img
+                        src={profile.profile_image_url || "https://i.pinimg.com/736x/3c/f0/84/3cf084a78beb6119dd6633737950ab38.jpg"}
+                        alt="프로필 이미지"
+                        className="profile-img"
+                    />
+                    <p><strong>이메일:</strong> {profile.email}</p>
+                    <p><strong>이름:</strong> {profile.username}</p>
+                    <button onClick={() => setEditing(true)}>프로필 수정</button>
+                </>
             )}
         </div>
     );

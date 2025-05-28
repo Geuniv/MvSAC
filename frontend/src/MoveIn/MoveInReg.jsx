@@ -1,182 +1,120 @@
-// import axios from 'axios';
-// import { useState } from "react";
-// import { useNavigate } from "react-router-dom";
-
-// export default function MoveInReg () {
-//     // const navigator = useNavigate();
-
-//     const [ form, setForm ] = useState({
-//         name: "",
-//         rrn: "",
-//         email: "",
-//         beforeAddr: '',
-//         afterAddr: '',
-//         moveInDt: ''
-//     });
-
-//     const { name, rrn, email, beforeAddr, afterAddr, moveInDt } = form;
-
-//     const handleChange = e => setForm({...form, [e.target.name]: e.target.value})
-
-//     const handleSubmit = e => {
-//         e.preventDefault();
-//         axios
-//         .post("http://localhost:8000/movein/",
-//             formData,
-//             {
-//                 headers: {
-//                     "Content-Type": "multipart/form-data"
-//                 }
-//             }
-//         )
-//         .then(res => {
-//             console.log(res);
-//             if (res.status === 201) {
-//                     alert(res.data.message);
-//                     // navigator("/list");
-//                 }
-//         })
-//         .catch(err => {
-//             console.log(err);
-//             alert("전입 등록 실패")
-//         })
-//     }
-//     return(
-//         <>
-//             <form onSubmit={handleSubmit}>
-//                 <input onChange={handleChange} value={name} name="name" type="text" placeholder='신청자 이름 입력'/>
-//                 <input onChange={handleChange} value={rrn} name="rrn" type="number" placeholder='주민번호 입력'/>
-//                 <input onChange={handleChange} value={email} name="email" type="text" placeholder='이메일 입력'/>
-//                 <input onChange={handleChange} value={beforeAddr} name="beforeAddr" type="text" placeholder='입주 전 주소'/>
-//                 <input onChange={handleChange} value={afterAddr} name="afterAddr" type="text" placeholder='입주 후 주소'/>
-//                 <input onChange={handleChange} value={moveInDt} name="moveInDt" type="date" placeholder='입주 예정일'/>
-//                 <button type="submit">등록</button>
-//             </form>
-//         </>
-//     )
-// };
-
-// import React, { useEffect, useState } from "react";
-// import axios from "axios";
-// import SearchBar from "./SearchBar";
-// import MoveInList from "./MoveInList";
-// import MoveInPopup from "./MoveInPopup";
-
-// function MoveInReg() {
-//   const [moveInData, setMoveInData] = useState([]);
-//   const [selectedMoveIn, setSelectedMoveIn] = useState(null);
-//   const [error, setError] = useState(null);
-
-//   const [search, setSearch] = useState({
-//     name: "",
-//     startDate: "",
-//     endDate: "",
-//     approval: "",
-//   });
-//  //이 부분에 userId를 받아야함
-//   const loggedInUserEmail = "hong@test.com";
-
-//   useEffect(() => {
-//     axios
-//       .get("http://localhost:8000/movein/")
-//       .then((res) => {
-//         const filtered = res.data.filter(
-//           (item) => item.userId === loggedInUserEmail
-//         );
-//         setMoveInData(filtered);
-//       })
-//       .catch(() => setError("데이터 로딩 중 오류 발생"));
-//   }, []);
-
-//   const filteredData = moveInData.filter((item) => {
-//     const regDate = item.regDt?.substring(0, 10);
-//     return (
-//       (!search.name || item.username.includes(search.name)) &&
-//       (!search.startDate || regDate >= search.startDate) &&
-//       (!search.endDate || regDate <= search.endDate) &&
-//       (!search.approval ||
-//         (search.approval === "승인" && item.isApproval === true) ||
-//         (search.approval === "반려" && item.isApproval === false) ||
-//         (search.approval === "대기" && item.isApproval === null))
-//     );
-//   });
-
-//   return (
-//     <div>
-//       <h1>{loggedInUserEmail} 담당 전입신청 목록</h1>
-
-//       <SearchBar search={search} setSearch={setSearch} />
-
-//       {error && <p style={{ color: "red" }}>{error}</p>}
-
-//       <MoveInList data={filteredData} onSelect={setSelectedMoveIn} />
-
-//       {selectedMoveIn && (
-//         <MoveInPopup data={selectedMoveIn} onClose={() => setSelectedMoveIn(null)} />
-//       )}
-//     </div>
-//   );
-// }
-
-// export default MoveInReg;
-
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
-import SearchBar from "./SearchBar";
-import MoveInList from "./MoveInList";
-import MoveInPopup from "./MoveInPopup";
+import "../css/Modal.css";
 
-
-function MoveInReg() {
-  const [moveInData, setMoveInData] = useState([]);
-  const [selectedMoveIn, setSelectedMoveIn] = useState(null);
-  const [error, setError] = useState(null);
-  const [search, setSearch] = useState({
+export default function MoveInRegModal({ onClose, onRegister }) {
+  const [form, setForm] = useState({
     name: "",
-    startDate: "",
-    endDate: "",
-    approval: "",
+    rrn: "",
+    email: "",
+    beforeAddr: '',
+    afterAddr: '',
+    moveInDt: ''
   });
 
-  const loggedInUserEmail = window.sessionStorage.getItem("user_email");
+  const [rrn1, setRrn1] = useState("");
+  const [rrn2, setRrn2] = useState("");
 
-  useEffect(() => {
-    axios
-      .get("http://localhost:8000/movein/")
-      .then((res) => {
-        console.log(res);
-        console.log(res.data);
-        const filtered = res.data.filter(
-          (item) => item.userId === loggedInUserEmail
-        );
-        setMoveInData(filtered);
-      })
-      .catch(() => setError("데이터 로딩 중 오류 발생"));
-  }, []);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
 
-  const filteredData = moveInData.filter((item) => {
-    const regDate = item.regDt?.substring(0, 10);
-    return (
-      (!search.name || item.name.includes(search.name)) &&
-      (!search.startDate || regDate >= search.startDate) &&
-      (!search.endDate || regDate <= search.endDate) &&
-      (!search.approval ||
-        (search.approval === "승인" && item.isApproval === true) ||
-        (search.approval === "반려" && item.isApproval === false) ||
-        (search.approval === "대기" && item.isApproval === null))
-    );
-  });
+    if (name === "rrn1") {
+      if (value.length <= 6) {
+        setRrn1(value);
+        setForm((prev) => ({ ...prev, rrn: `${value}-${rrn2}` }));
+      }
+    } else if (name === "rrn2") {
+      if (value.length <= 7) {
+        setRrn2(value);
+        setForm((prev) => ({ ...prev, rrn: `${rrn1}-${value}` }));
+      }
+    } else {
+      setForm({ ...form, [name]: value });
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.post("http://localhost:8000/movein/", form, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${window.sessionStorage.getItem("access_token")}`
+        }
+      });
+      alert(res.data.message);
+      onRegister();
+      onClose();
+    } catch (err) {
+      console.error(err);
+      alert("전입 등록 실패");
+    }
+  };
 
   return (
-    <div>
-      <h1>{loggedInUserEmail} 담당 전입신청 목록</h1>
-      <SearchBar search={search} setSearch={setSearch} />
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <MoveInList data={filteredData} onSelect={setSelectedMoveIn} />
-      {selectedMoveIn && (
-        <MoveInPopup data={selectedMoveIn} onClose={() => setSelectedMoveIn(null)} />
-      )}
+    <div className="popup" onClick={onClose}>
+      <div className="popup-content" onClick={(e) => e.stopPropagation()}>
+        <h3>전입 신청</h3>
+        <form onSubmit={handleSubmit} className="popup-form">
+          {[
+            { label: "이름", name: "name" },
+            { label: "이메일", name: "email" },
+          ].map(({ label, name, type = "text" }) => (
+            <input
+              key={name}
+              name={name}
+              type={type}
+              value={form[name]}
+              placeholder={label}
+              onChange={handleChange}
+              required
+            />
+          ))}
+
+          <div className="rrn-group">
+            <input
+              name="rrn1"
+              type="number"
+              value={rrn1}
+              placeholder="주민번호 앞 6자리"
+              onChange={handleChange}
+              maxLength="6"
+              required
+              className="half-input"
+            />
+            <span>-</span>
+            <input
+              name="rrn2"
+              type="number"
+              value={rrn2}
+              placeholder="뒤 7자리"
+              onChange={handleChange}
+              maxLength="7"
+              required
+              className="half-input"
+            />
+          </div>
+
+          {[
+            { label: "입주 전 주소", name: "beforeAddr" },
+            { label: "입주 후 주소", name: "afterAddr" },
+            { label: "입주일", name: "moveInDt", type: "date" }
+          ].map(({ label, name, type = "text" }) => (
+            <input
+              key={name}
+              name={name}
+              type={type}
+              value={form[name]}
+              placeholder={label}
+              onChange={handleChange}
+              required
+            />
+          ))}
+
+          <button type="submit" className="submit-btn">등록</button>
+          <button type="button" onClick={onClose} className="cancel-btn">취소</button>
+        </form>
+      </div>
     </div>
   );
 }
-export default MoveInReg;

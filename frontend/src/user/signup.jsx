@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import "../css/Signup.css";
 
 export default function Signup() {
     const navigate = useNavigate();
@@ -9,14 +10,14 @@ export default function Signup() {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState(''); // 🔹 확인용 비밀번호 추가
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [file, setFile] = useState(null);
     const [role, setRole] = useState('N');
 
     const changeUsername = e => setUsername(e.target.value);
     const changeEmail = e => setEmail(e.target.value);
     const changePassword = e => setPassword(e.target.value);
-    const changeConfirmPassword = e => setConfirmPassword(e.target.value); // 🔹
+    const changeConfirmPassword = e => setConfirmPassword(e.target.value);
     const changeRole = e => setRole(e.target.value);
     const changeFile = e => setFile(e.target.files[0]);
 
@@ -40,12 +41,17 @@ export default function Signup() {
 
         axios
             .post("http://localhost:8000/users/signup", formData, {
-                headers: { "Content-Type": "multipart/form-data" }
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                    "Authorization": `Bearer ${sessionStorage.getItem("access_token")}`
+                }
             })
             .then(res => {
                 if (res.status === 201) {
                     alert(res.data.message);
-                    navigate("/login");
+                    // navigate("/list");
+                    // navigate("/users")
+                    window.location.href = "/users";
                 }
             })
             .catch(err => {
@@ -56,20 +62,16 @@ export default function Signup() {
     };
 
     return (
-        <>
-            <h2>회원가입</h2>
-            <form onSubmit={handleSubmit} encType="multipart/form-data">
-                <input type="text" ref={inputRef} value={username} onChange={changeUsername} placeholder="이름" required />
-                <input type="email" value={email} onChange={changeEmail} placeholder="이메일" required />
-                <input type="password" value={password} onChange={changePassword} placeholder="비밀번호" required />
-                <input type="password" value={confirmPassword} onChange={changeConfirmPassword} placeholder="비밀번호 확인" required /> {/* 🔹 */}
-                {/* <select value={role} onChange={changeRole}>
-                    <option value="N">일반 사용자</option>
-                    <option value="Y">관리자</option>
-                </select> */}
-                <input type="file" onChange={changeFile} />
-                <button type="submit">회원가입</button>
-            </form>
-        </>
+        <div className="signup-container">
+            <h2>사원 등록</h2>
+           <form onSubmit={handleSubmit} encType="multipart/form-data" className="signup-form">
+            <input type="text" ref={inputRef} value={username} onChange={changeUsername} placeholder="이름" required />
+            <input type="email" value={email} onChange={changeEmail} placeholder="이메일" required />
+            <input type="password" value={password} onChange={changePassword} placeholder="비밀번호" required />
+            <input type="password" value={confirmPassword} onChange={changeConfirmPassword} placeholder="비밀번호 확인" required />
+            <input type="file" onChange={changeFile} />
+            <button type="submit" className="submit-btn">등록</button>
+           </form>
+        </div>
     );
 }

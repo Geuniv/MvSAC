@@ -1,8 +1,9 @@
 #root {
-  max-width: 1280px;
+  width: 80%;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+  background-color: white; /* 배경 흰색 */
 }
 
 .logo {
@@ -12,10 +13,10 @@
   transition: filter 300ms;
 }
 .logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+  filter: drop-shadow(0 0 2em #90ee90aa); /* 연두색 포인트 */
 }
 .logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+  filter: drop-shadow(0 0 2em #90ee90aa); /* 연두색 포인트 */
 }
 
 @keyframes logo-spin {
@@ -41,185 +42,115 @@
   color: #888;
 }
 
-/* .modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
+a,
+a:visited {
+  color: #333;
+  text-decoration: none;
 }
 
-.modal-content {
-  background: white;
-  padding: 20px;
-  width: 400px;
-  border-radius: 8px;
-} */
-/* .popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+a:hover {
+  color: #90ee90;
+  text-decoration: none;
 }
 
-.popup-content {
-  background-color: white;
-  padding: 20px;
-  margin: 100px auto;
-  width: 400px;
-  border-radius: 10px;
-  position: relative;
-} */
-.popup {
+a:active {
+  color: #555;
+}
+
+.topnav {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5); /* 어두운 배경 */
+  right: 0;
+  height: 60px;
+  padding: 0 30px;
+  background-color: #90ee90; /* 연두색 배경 */
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
   z-index: 999;
+  box-sizing: border-box;
 }
 
-.popup-content {
-  background-color: royalblue;
-  padding: 30px;
-  width: 400px;
-  max-height: 90vh;
-  overflow-y: auto;
-  border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+.topnav a,
+.topnav button {
+  color: black;
+  text-decoration: none;
+  padding: 8px 16px;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.topnav .title {
+  font-weight: bold;
+}
+
+.nav-right .dropbtn {
+  color: black;
+}
+
+.user-profile {
+  background-color: #f0f0f0;
+  color: #90ee90;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: bold;
+}
+
+.dropdown {
   position: relative;
-  text-align: left;
+  display: inline-block;
 }
 
-/* 닫기 버튼 스타일 (선택사항) */
-.popup-content button {
-  display: block;
-  margin: 20px auto 0;
-  padding: 10px 20px;
+.dropbtn {
+  background-color: #f0f0f0;
+  color: #90ee90;
+  padding: 6px 12px;
+  font-weight: bold;
   border: none;
-  background-color: #646cff;
-  color: white;
-  border-radius: 5px;
+  border-radius: 20px;
   cursor: pointer;
 }
 
-.popup-content button:hover {
-  background-color: #4b54cc;
-}
-.App {
-  color: white; /* 글씨가 보이도록 기본 텍스트 색상 지정 */
+.dropdown-content {
+  position: absolute;
+  right: 0;
+  background-color: white;
+  min-width: 120px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  border-radius: 5px;
+  overflow: hidden;
 }
 
-/* 전체 폰트 및 배경 설정 */
+.dropdown-content a,
+.dropdown-content button {
+  color: black;
+  padding: 10px 16px;
+  text-decoration: none;
+  display: block;
+  background: white;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-size: 14px;
+}
+
+.dropdown-content a:hover,
+.dropdown-content button:hover {
+  background-color: #e0ffe0; /* 연두 계열 hover */
+}
+
+.logo-img {
+  height: 40px;
+  vertical-align: middle;
+}
+
 body {
-    font-family: 'Helvetica', 'Arial', sans-serif;
-    background-color: #f9f9f9;
-    margin: 0;
-    padding: 10px 30px;
-    color: #333;
-    display: flex;
-    align-items: flex-start
-}
-
-
-/* 제목 스타일 */
-h1,
-h2,
-h3 {
-    color: #222;
-    margin-bottom: 10px;
-}
-
-
-/* 폼 스타일 */
-form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 0px;
-    max-width: 500px;
-    margin: 0 auto;
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-
-/* 입력창 스타일 */
-input[type="text"],
-input[type="number"],
-input[type="password"],
-input[type="file"] {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-
-/* 버튼 스타일 */
-button {
-    padding: 10px;
-    background-color: #4caf50;
-    border: none;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background-color 0.3s;
-}
-
-
-button:hover {
-    background-color: #45a049;
-}
-
-
-/* 이벤트 목록 컨테이너 */
-ul {
-    list-style-type: none;
-    padding: 0;
-    max-width: 800px;
-    margin: 20px auto;
-}
-
-
-/* 이벤트 아이템 스타일 */
-li {
-    background-color: #ffffff;
-    border: 1px solid #e1e1e1;
-    border-radius: 6px;
-    padding: 15px;
-    margin-bottom: 20px;
-    box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.05);
-}
-
-
-li img {
-    display: block;
-    margin-top: 10px;
-    border-radius: 4px;
-}
-
-
-/* 링크 스타일 */
-a {
-    text-decoration: none;
-    color: #0077cc;
-}
-
-
-a:hover {
-    text-decoration: underline;
+  margin: 0;
+  padding-top: 60px;
+  box-sizing: border-box;
+  background-color: white; /* 전체 배경 흰색 */
 }

@@ -1,41 +1,44 @@
 import React from "react";
+import "../css/SearchBar.css";
+import "../css/MoveInListPage.css"; // CSS 클래스 적용
 
 function SearchBar({ search, setSearch }) {
   const reset = () =>
     setSearch({ name: "", startDate: "", endDate: "", approval: "" });
 
   return (
-    <div style={{ marginBottom: "20px" }}>
+    <div className="searchbar-container">
       <input
         type="text"
         placeholder="이름 검색"
         value={search.name}
         onChange={(e) => setSearch({ ...search, name: e.target.value })}
-        style={{ marginRight: "10px" }}
+        className="search-input"
       />
       <input
         type="date"
         value={search.startDate}
         onChange={(e) => setSearch({ ...search, startDate: e.target.value })}
-        style={{ marginRight: "5px" }}
+        className="date-input"
       />
-      <span>~</span>
+      <span className="date-separator">~</span>
       <input
         type="date"
         value={search.endDate}
         onChange={(e) => setSearch({ ...search, endDate: e.target.value })}
-        style={{ marginLeft: "5px", marginRight: "10px" }}
+        className="date-input"
       />
       <select
         value={search.approval}
         onChange={(e) => setSearch({ ...search, approval: e.target.value })}
-        style={{ marginRight: "10px" }}
+        className="select-box"
       >
         <option value="">승인여부 전체</option>
         <option value="승인">승인</option>
         <option value="대기">대기</option>
+        <option value="거절">거절</option>
       </select>
-      <button onClick={reset}>초기화</button>
+      <button onClick={reset} className="reset-btn">초기화</button>
     </div>
   );
 }

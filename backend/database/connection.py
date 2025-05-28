@@ -18,4 +18,4 @@ def get_session():
         yield session
 
 # 세션 로컬 생성
-SessionLocal = sessionmaker(bind=settings.database_url, class_=Session, autocommit=False, autoflush=False)
+SessionLocal = sessionmaker(bind=engine, class_=Session, autocommit=False, autoflush=False)
