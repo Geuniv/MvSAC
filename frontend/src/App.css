@@ -1,9 +1,16 @@
 #root {
+<<<<<<< HEAD
   width: 80%;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
   background-color: white; /* 배경 흰색 */
+=======
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+>>>>>>> a5fb0f7db71cfbcfb0fb953782c3579e97dbbb27
 }
 
 .logo {
@@ -13,10 +20,17 @@
   transition: filter 300ms;
 }
 .logo:hover {
+<<<<<<< HEAD
   filter: drop-shadow(0 0 2em #90ee90aa); /* 연두색 포인트 */
 }
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #90ee90aa); /* 연두색 포인트 */
+=======
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+>>>>>>> a5fb0f7db71cfbcfb0fb953782c3579e97dbbb27
 }
 
 @keyframes logo-spin {
@@ -41,6 +55,7 @@
 .read-the-docs {
   color: #888;
 }
+<<<<<<< HEAD
 
 a,
 a:visited {
@@ -154,3 +169,5 @@ body {
   box-sizing: border-box;
   background-color: white; /* 전체 배경 흰색 */
 }
+=======
+>>>>>>> a5fb0f7db71cfbcfb0fb953782c3579e97dbbb27
