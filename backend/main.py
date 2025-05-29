@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-<<<<<<< HEAD
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from contextlib import asynccontextmanager
@@ -22,16 +21,13 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
-=======
 
 app = FastAPI()
 
->>>>>>> a5fb0f7db71cfbcfb0fb953782c3579e97dbbb27
 
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
-<<<<<<< HEAD
 # from fastapi.middleware.cors import CORSMiddleware
 app.add_middleware(
     # CORS 설정
@@ -51,10 +47,3 @@ app.include_router(moveininfo_router, prefix="/movein")
 if __name__ == "__main__":
     create_admin_user()
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
-=======
-
-
-@app.get("/hello/{name}")
-async def say_hello(name: str):
-    return {"message": f"Hello {name}"}
->>>>>>> a5fb0f7db71cfbcfb0fb953782c3579e97dbbb27

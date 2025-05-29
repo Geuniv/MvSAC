@@ -14,9 +14,6 @@ from config.settings import settings
 
 # Fernet 인스턴스 생성
 fernet = Fernet(settings.rrn_secret_key.encode())
-# rrn_secret_key = "bN30FgDgikd03_RiU0a0PdhYN4w0fAPaqeo6SGIc1Nk="
-
-# fernet = Fernet(rrn_secret_key.encode())
 
 # 주민번호 암호화
 def encrypt_rrn(rrn: str) -> str:
